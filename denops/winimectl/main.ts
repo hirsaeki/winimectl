@@ -37,7 +37,7 @@ async function reportError(denops: Denops, error: unknown): Promise<void> {
   const errorMessage = error instanceof Error 
     ? `${error.name}: ${error.message}`
     : `Error: ${String(error)}`;
-  await denops.call("nvim_err_writeln", `[winimectl] ${errorMessage}`);
+  await denops.cmd(`echomsg "[winimectl] ${errorMessage}"`);
 }
 
 // Win32ハンドルとDenoのポインタ型の変換ユーティリティ
@@ -74,10 +74,7 @@ export async function main(denops: Denops): Promise<void> {
         }
 
         // デバッグ情報を出力
-        await denops.call(
-          "nvim_err_writeln",
-          `[winimectl] Debug: Got window handle: ${Deno.UnsafePointer.value(hwnd as Deno.PointerObject<unknown>)}`
-        );
+        await denops.cmd('echomsg "[winimectl] Debug: Got window handle"');
 
         // ウィンドウハンドルを適切なポインタ型として扱う
         const hIMC = immLib.symbols.ImmGetContext(hwnd);
