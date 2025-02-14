@@ -1,7 +1,6 @@
 import { Denops } from "https://deno.land/x/denops_std@v5.2.0/mod.ts";
-import * as ffi from "https://deno.land/x/ffi@0.4.0/mod.ts";
 
-const lib = ffi.dlopen("imm32.dll", {
+const lib = Deno.dlopen("imm32.dll", {
   ImmGetContext: {
     parameters: ["pointer"],
     result: "pointer",
@@ -18,7 +17,7 @@ const lib = ffi.dlopen("imm32.dll", {
     parameters: ["pointer", "pointer"],
     result: "bool",
   },
-});
+} as const);
 
 export async function main(denops: Denops): Promise<void> {
   // Plugin initialization
