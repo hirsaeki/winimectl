@@ -17,6 +17,7 @@ ffi.cdef [[
     typedef long LPARAM;
     typedef long LRESULT;
     typedef int BOOL;
+    typedef long long intptr_t;
 
     HWND GetForegroundWindow(void);
     HWND ImmGetDefaultIMEWnd(HWND);
@@ -63,7 +64,7 @@ local function error_print(msg)
 end
 
 local function is_valid_window(hwnd)
-    if hwnd == nil or hwnd == 0 then
+    if hwnd == nil or hwnd == ffi.cast("HWND", 0) then
         return false
     end
     return user32.IsWindow(hwnd) ~= 0 and user32.IsWindowEnabled(hwnd) ~= 0
@@ -75,14 +76,14 @@ local function get_ime_window()
         error_print("Failed to get foreground window")
         return nil
     end
-    debug_print(string.format("Foreground window handle: 0x%x", tonumber(fg_hwnd)))
+    debug_print(string.format("Foreground window handle: 0x%x", tonumber(ffi.cast("intptr_t", fg_hwnd))))
 
     local ime_hwnd = imm32.ImmGetDefaultIMEWnd(fg_hwnd)
     if not is_valid_window(ime_hwnd) then
         error_print("Failed to get IME window")
         return nil
     end
-    debug_print(string.format("IME window handle: 0x%x", tonumber(ime_hwnd)))
+    debug_print(string.format("IME window handle: 0x%x", tonumber(ffi.cast("intptr_t", ime_hwnd))))
 
     return ime_hwnd
 end
