@@ -2,8 +2,11 @@ import { Denops } from "https://deno.land/x/denops_std@v6.5.1/mod.ts";
 
 const dllPath = "C:\\Windows\\System32\\imm32.dll";
 const user32Path = "C:\\Windows\\System32\\user32.dll";
+const kernel32Path = "C:\\Windows\\System32\\kernel32.dll";
+
 let immLib: Deno.DynamicLibrary<typeof immSymbols>;
 let user32Lib: Deno.DynamicLibrary<typeof user32Symbols>;
+let kernel32Lib: Deno.DynamicLibrary<typeof kernel32Symbols>;
 
 // FFI function signatures
 const immSymbols = {
@@ -30,6 +33,9 @@ const user32Symbols = {
     parameters: [],
     result: "pointer",
   },
+} as const;
+
+const kernel32Symbols = {
   GetLastError: {
     parameters: [],
     result: "u32",
@@ -44,12 +50,12 @@ async function reportError(denops: Denops, error: unknown): Promise<void> {
   await denops.cmd(`echomsg "[winimectl] ${errorMessage}"`);
 }
 
-// Win32ハンドルとDenoのポインタ型の変換ユーティリティ
 // Initialize FFI libraries with error handling
 async function initializeLibraries(denops: Denops): Promise<boolean> {
   try {
     immLib = Deno.dlopen(dllPath, immSymbols);
     user32Lib = Deno.dlopen(user32Path, user32Symbols);
+    kernel32Lib = Deno.dlopen(kernel32Path, kernel32Symbols);
     return true;
   } catch (error) {
     await reportError(denops, `Failed to load required libraries: ${error}`);
@@ -74,16 +80,15 @@ export async function main(denops: Denops): Promise<void> {
       try {
         const hwnd = user32Lib.symbols.GetForegroundWindow();
         if (!hwnd) {
-          throw new Error("Failed to get foreground window handle");
+          throw new Error(`Failed to get foreground window handle (GetLastError: ${kernel32Lib.symbols.GetLastError()})`);
         }
 
         // デバッグ情報を出力
         await denops.cmd(`echomsg "[winimectl] Debug: Got window handle: 0x${Number(Deno.UnsafePointer.value(hwnd as Deno.PointerObject<unknown>)).toString(16)}"`);
 
-        // ウィンドウハンドルを適切なポインタ型として扱う
         const hIMC = immLib.symbols.ImmGetContext(hwnd);
         if (!hIMC) {
-          throw new Error(`Failed to get IME context (GetLastError: ${user32Lib.symbols.GetLastError()})`);
+          throw new Error(`Failed to get IME context (GetLastError: ${kernel32Lib.symbols.GetLastError()})`);
         }
 
         try {
@@ -103,18 +108,18 @@ export async function main(denops: Denops): Promise<void> {
       try {
         const hwnd = user32Lib.symbols.GetForegroundWindow();
         if (!hwnd) {
-          throw new Error("Failed to get foreground window handle");
+          throw new Error(`Failed to get foreground window handle (GetLastError: ${kernel32Lib.symbols.GetLastError()})`);
         }
 
         const hIMC = immLib.symbols.ImmGetContext(hwnd);
         if (!hIMC) {
-          throw new Error("Failed to get IME context");
+          throw new Error(`Failed to get IME context (GetLastError: ${kernel32Lib.symbols.GetLastError()})`);
         }
 
         try {
           const result = immLib.symbols.ImmSetOpenStatus(hIMC, status);
           if (!result) {
-            throw new Error("Failed to set IME status");
+            throw new Error(`Failed to set IME status (GetLastError: ${kernel32Lib.symbols.GetLastError()})`);
           }
         } finally {
           immLib.symbols.ImmReleaseContext(hwnd, hIMC);
