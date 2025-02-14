@@ -14,12 +14,11 @@ function M.setup(opts)
       vim.fn['denops#request'](
         'winimectl',
         'getImeStatus',
-        {},
         function(err, status)
           if not err and status ~= nil then
             -- 状態の保存に成功したら、IMEをオフにする
             vim.b.prev_ime_status = status
-            vim.fn['denops#request']('winimectl', 'setImeStatus', {false})
+            vim.fn['denops#request']('winimectl', 'setImeStatus', { false })
           end
         end
       )
@@ -33,7 +32,7 @@ function M.setup(opts)
       -- 保存されていた以前のIME状態を復元
       local prev_status = vim.b.prev_ime_status
       if prev_status ~= nil then
-        vim.fn['denops#request']('winimectl', 'setImeStatus', {prev_status})
+        vim.fn['denops#request']('winimectl', 'setImeStatus', { prev_status })
       end
     end,
   })
