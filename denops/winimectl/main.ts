@@ -1,6 +1,7 @@
 import { Denops } from "https://deno.land/x/denops_std@v5.2.0/mod.ts";
 
-const lib = Deno.dlopen("imm32.dll", {
+const dllPath = "C:\\Windows\\System32\\imm32.dll";
+const lib = Deno.dlopen(dllPath, {
   ImmGetContext: {
     parameters: ["pointer"],
     result: "pointer",
