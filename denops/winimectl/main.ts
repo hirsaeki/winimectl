@@ -30,6 +30,10 @@ const user32Symbols = {
     parameters: [],
     result: "pointer",
   },
+  GetLastError: {
+    parameters: [],
+    result: "u32",
+  },
 } as const;
 
 // Helper function to report errors to Neovim
@@ -74,12 +78,12 @@ export async function main(denops: Denops): Promise<void> {
         }
 
         // デバッグ情報を出力
-        await denops.cmd('echomsg "[winimectl] Debug: Got window handle"');
+        await denops.cmd(`echomsg "[winimectl] Debug: Got window handle: 0x${hwnd.toString(16)}"`);
 
         // ウィンドウハンドルを適切なポインタ型として扱う
         const hIMC = immLib.symbols.ImmGetContext(hwnd);
         if (!hIMC) {
-          throw new Error("Failed to get IME context");
+          throw new Error(`Failed to get IME context (GetLastError: ${user32Lib.symbols.GetLastError()})`);
         }
 
         try {
