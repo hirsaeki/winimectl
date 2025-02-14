@@ -1,8 +1,0 @@
-{
-  "version": "4",
-  "remote": {
-    "https://deno.land/x/denops_core@v6.1.0/denops.ts": "4d0c74a35d6fc81ea8891723d7aac155de75ee9df4a8208820ad33f5b9baf77f",
-    "https://deno.land/x/denops_core@v6.1.0/mod.ts": "8e9df19d34cef4ba9f383de05f9b59cbdb605a05dae1bd34ee2ec4fa7343dc9c",
-    "https://deno.land/x/denops_std@v6.5.1/mod.ts": "7db35ea80fd54afbd8ce909f490c6f6d9536c6c1e048ef3fdf387efcd188157d"
-  }
-}
