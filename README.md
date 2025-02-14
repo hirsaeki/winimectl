@@ -12,20 +12,36 @@ A Neovim plugin for controlling Windows IME state using denops.vim.
 
 Using your preferred plugin manager:
 
+### packer
+
 ```lua
 -- Using packer.nvim
 use {
-  'your-username/winimectl',
+  'hirsaeki/winimectl',
   requires = 'vim-denops/denops.vim'
 }
 ```
-
-## Setup
 
 Add to your init.lua:
 
 ```lua
 require('winimectl').setup()
+```
+
+### lazy
+
+```lua
+-- Using lazy.nvim
+{
+  "hirsaeki/winimectl",
+  dependencies = {
+    "vim-denops/denops.vim",
+  },
+  event = "VeryLazy",
+  config = function()
+    require("winimectl").setup()
+  end,
+}
 ```
 
 ## Features
@@ -37,4 +53,3 @@ require('winimectl').setup()
 ## License
 
 MIT
-
