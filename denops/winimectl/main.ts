@@ -1,5 +1,5 @@
-import { Denops } from "https://deno.land/x/denops_std@v5.2.0/mod.ts";
-import { FFI } from "https://deno.land/x/ffi@v0.4.0/mod.ts";
+import { Denops } from "https://deno.land/x/denops_std@v6.5.1/mod.ts";
+import { FFI } from "https://deno.land/x/ffi@0.4.0/mod.ts";
 
 const lib = new FFI({
   ImmGetContext: { parameters: ["pointer"], result: "pointer" },
