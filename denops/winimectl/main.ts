@@ -40,6 +40,15 @@ async function reportError(denops: Denops, error: unknown): Promise<void> {
   await denops.call("nvim_err_writeln", `[winimectl] ${errorMessage}`);
 }
 
+// Win32ハンドルとDenoのポインタ型の変換ユーティリティ
+function toPointer(handle: bigint | number): Deno.PointerValue {
+  return Deno.UnsafePointer.create(BigInt(handle)) as Deno.PointerValue;
+}
+
+function fromPointer(ptr: Deno.PointerValue): bigint {
+  return Deno.UnsafePointer.value(ptr as Deno.PointerObject<unknown>);
+}
+
 // Initialize FFI libraries with error handling
 async function initializeLibraries(denops: Denops): Promise<boolean> {
   try {
@@ -72,7 +81,9 @@ export async function main(denops: Denops): Promise<void> {
           throw new Error("Failed to get foreground window handle");
         }
 
-        const hIMC = immLib.symbols.ImmGetContext(hwnd);
+        // ウィンドウハンドルを適切なポインタ型として扱う
+        const hwndPtr = toPointer(fromPointer(hwnd));
+        const hIMC = immLib.symbols.ImmGetContext(hwndPtr);
         if (!hIMC) {
           throw new Error("Failed to get IME context");
         }
@@ -81,7 +92,7 @@ export async function main(denops: Denops): Promise<void> {
           const status = immLib.symbols.ImmGetOpenStatus(hIMC);
           return status;
         } finally {
-          immLib.symbols.ImmReleaseContext(hwnd, hIMC);
+          immLib.symbols.ImmReleaseContext(hwndPtr, hIMC);
         }
       } catch (error) {
         await reportError(denops, `Failed to get IME status: ${error}`);
@@ -97,7 +108,9 @@ export async function main(denops: Denops): Promise<void> {
           throw new Error("Failed to get foreground window handle");
         }
 
-        const hIMC = immLib.symbols.ImmGetContext(hwnd);
+        // ウィンドウハンドルを適切なポインタ型として扱う
+        const hwndPtr = toPointer(fromPointer(hwnd));
+        const hIMC = immLib.symbols.ImmGetContext(hwndPtr);
         if (!hIMC) {
           throw new Error("Failed to get IME context");
         }
@@ -108,7 +121,7 @@ export async function main(denops: Denops): Promise<void> {
             throw new Error("Failed to set IME status");
           }
         } finally {
-          immLib.symbols.ImmReleaseContext(hwnd, hIMC);
+          immLib.symbols.ImmReleaseContext(hwndPtr, hIMC);
         }
       } catch (error) {
         await reportError(denops, `Failed to set IME status: ${error}`);
