@@ -10,13 +10,12 @@ function M.setup(opts)
     group = group,
     callback = function()
       -- Store current IME status before disabling
-      vim.fn['denops#request']('winimectl', 'getImeStatus', {}, function(err, status)
-        if not err then
-          vim.b.prev_ime_status = status
-          -- Disable IME
-          vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
-        end
-      end)
+      local status = vim.fn['denops#request']('winimectl', 'getImeStatus', {})
+      if status then
+        vim.b.prev_ime_status = status
+        -- Disable IME
+        vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
+      end
     end,
   })
 
