@@ -9,16 +9,22 @@ function M.setup(opts)
   vim.api.nvim_create_autocmd("InsertLeave", {
     group = group,
     callback = function()
-      -- Request current IME status and handle it asynchronously
-      vim.fn['denops#request_async']('winimectl', 'getImeStatus', {}, function(err, status)
-        if not err and status ~= nil then
-          vim.b.prev_ime_status = status
-          -- Use notify for setImeStatus as we don't need to wait for the result
-          vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
-        else
-          vim.api.nvim_err_writeln("Failed to get IME status: " .. (err or "unknown error"))
+      vim.fn['denops#request_async'](
+        'winimectl',
+        'getImeStatus',
+        {},
+        function(err, status)
+          if not err and status ~= nil then
+            vim.b.prev_ime_status = status
+            vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
+          else
+            vim.api.nvim_err_writeln("Failed to get IME status: " .. (err or "unknown error"))
+          end
+        end,
+        function(err)
+          vim.api.nvim_err_writeln("Error in denops request: " .. vim.inspect(err))
         end
-      end, vim.schedule_wrap)
+      )
     end,
   })
 
