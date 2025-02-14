@@ -1,11 +1,23 @@
-import { Denops } from "https://deno.land/x/denops_std@v6.5.1/mod.ts";
-import { FFI } from "https://deno.land/x/ffi@0.4.0/mod.ts";
+import { Denops } from "https://deno.land/x/denops_std@v5.2.0/mod.ts";
+import * as ffi from "https://deno.land/x/ffi@0.4.0/mod.ts";
 
-const lib = new FFI({
-  ImmGetContext: { parameters: ["pointer"], result: "pointer" },
-  ImmGetOpenStatus: { parameters: ["pointer"], result: "bool" },
-  ImmSetOpenStatus: { parameters: ["pointer", "bool"], result: "bool" },
-  ImmReleaseContext: { parameters: ["pointer", "pointer"], result: "bool" },
+const lib = ffi.dlopen("imm32.dll", {
+  ImmGetContext: {
+    parameters: ["pointer"],
+    result: "pointer",
+  },
+  ImmGetOpenStatus: {
+    parameters: ["pointer"],
+    result: "bool",
+  },
+  ImmSetOpenStatus: {
+    parameters: ["pointer", "bool"],
+    result: "bool",
+  },
+  ImmReleaseContext: {
+    parameters: ["pointer", "pointer"],
+    result: "bool",
+  },
 });
 
 export async function main(denops: Denops): Promise<void> {
@@ -15,17 +27,17 @@ export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
     async getImeStatus(): Promise<boolean> {
       const hwnd = await denops.call("winid") as number;
-      const hIMC = lib.ImmGetContext(hwnd);
-      const status = lib.ImmGetOpenStatus(hIMC);
-      lib.ImmReleaseContext(hwnd, hIMC);
+      const hIMC = lib.symbols.ImmGetContext(hwnd);
+      const status = lib.symbols.ImmGetOpenStatus(hIMC);
+      lib.symbols.ImmReleaseContext(hwnd, hIMC);
       return status;
     },
 
     async setImeStatus(status: boolean): Promise<void> {
       const hwnd = await denops.call("winid") as number;
-      const hIMC = lib.ImmGetContext(hwnd);
-      lib.ImmSetOpenStatus(hIMC, status);
-      lib.ImmReleaseContext(hwnd, hIMC);
+      const hIMC = lib.symbols.ImmGetContext(hwnd);
+      lib.symbols.ImmSetOpenStatus(hIMC, status);
+      lib.symbols.ImmReleaseContext(hwnd, hIMC);
     },
   };
 }
