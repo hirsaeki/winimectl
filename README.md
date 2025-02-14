@@ -69,6 +69,7 @@ For troubleshooting, you can use the following global functions:
 - `:lua winimectl_set_mode(mode)` - Set IME mode directly
 
 When debug mode is enabled, the plugin will output detailed information about:
+
 - Window handle acquisition
 - IME mode changes
 - Operation success/failure
