@@ -81,8 +81,19 @@ export async function main(denops: Denops): Promise<void> {
           throw new Error("Failed to get foreground window handle");
         }
 
+        // デバッグ情報を出力
+        await denops.call(
+          "nvim_err_writeln",
+          `[winimectl] Debug: Got window handle: ${Deno.UnsafePointer.value(hwnd as Deno.PointerObject<unknown>)}`
+        );
+
         // ウィンドウハンドルを適切なポインタ型として扱う
         const hwndPtr = toPointer(fromPointer(hwnd));
+        await denops.call(
+          "nvim_err_writeln",
+          `[winimectl] Debug: Converted handle: ${Deno.UnsafePointer.value(hwndPtr as Deno.PointerObject<unknown>)}`
+        );
+
         const hIMC = immLib.symbols.ImmGetContext(hwndPtr);
         if (!hIMC) {
           throw new Error("Failed to get IME context");
