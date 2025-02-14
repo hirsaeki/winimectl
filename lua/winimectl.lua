@@ -9,13 +9,14 @@ function M.setup(opts)
   vim.api.nvim_create_autocmd("InsertLeave", {
     group = group,
     callback = function()
-      -- Store current IME status before disabling
-      local status = vim.fn['denops#request']('winimectl', 'getImeStatus', {})
-      if status then
-        vim.b.prev_ime_status = status
-        -- Disable IME
-        vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
-      end
+      -- Use await_promise to handle the Promise properly
+      vim.fn['denops#request_async']('winimectl', 'getImeStatus', {}, function(status)
+        if status ~= nil then
+          vim.b.prev_ime_status = status
+          -- Use notify for setImeStatus as we don't need to wait for the result
+          vim.fn['denops#notify']('winimectl', 'setImeStatus', {false})
+        end
+      end)
     end,
   })
 
