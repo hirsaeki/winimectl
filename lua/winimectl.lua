@@ -55,7 +55,6 @@ vim.api.nvim_create_autocmd("InsertLeave", {
         mode = get_ime_mode()
       }
       -- IMEのモードを0に
-      set_ime_status(0)
       set_ime_mode(0)
     end
   end,
@@ -72,8 +71,7 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
         status = get_ime_status(),
         mode = get_ime_mode()
       }
-      -- IMEをオフにしてモードを0に
-      set_ime_status(0)
+      -- IMEのモードを0に
       set_ime_mode(0)
     end
   end,
