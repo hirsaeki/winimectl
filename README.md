@@ -24,7 +24,6 @@ Using your preferred plugin manager:
 {
   "hirsaeki/winimectl.nvim",
   event = "VeryLazy",
-  config = true,
 }
 ```
 
@@ -33,7 +32,6 @@ Using your preferred plugin manager:
 ```lua
 use {
   'hirsaeki/winimectl.nvim',
-  config = true,
 }
 ```
 
