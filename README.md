@@ -35,12 +35,12 @@ Using your preferred plugin manager:
 ### packer.nvim
 
 ```lua
-use {
+use({
   'hirsaeki/winimectl.nvim',
   config = function()
     require('winimectl').setup()
   end
-}
+})
 ```
 
 ## Configuration
@@ -49,16 +49,47 @@ The plugin can be configured with the following options:
 
 ```lua
 require('winimectl').setup({
-  debug = false,  -- Enable debug messages
-  ime_mode = {
-    jp = 1025,   -- Japanese input mode (customize if needed)
-    en = 0,      -- English input mode
+  insert = {
+    enable = true,    -- Enable/disable IME control for insert mode
+    on_leave = {
+      ime_off = true, -- Turn IME off when leaving insert mode
+      set_mode = 0,   -- Set IME mode when leaving (0 = English, 1025 = Japanese)
+    }
   },
-  retry = {
-    count = 3,      -- Number of retries for IME operations
-    interval = 100,  -- Retry interval in milliseconds
-  },
+  cmdline = {
+    enable = true,    -- Enable/disable IME control for command-line mode
+    on_leave = {
+      ime_off = true, -- Turn IME off when leaving command-line mode
+      set_mode = 0,   -- Set IME mode when leaving
+    }
+  }
 })
+```
+
+All options have sensible defaults, so you only need to configure what you want to change.
+
+Example: Keep IME on in command-line mode
+```lua
+require('winimectl').setup({
+  cmdline = {
+    on_leave = {
+      ime_off = false,  -- Don't turn IME off
+      set_mode = 1025   -- Keep Japanese mode
+    }
+  }
+})
+```
+
+Example: Disable IME control for insert mode
+```lua
+require('winimectl').setup({
+  insert = {
+    enable = false  -- Disable IME control for insert mode
+  }
+})
+```
+
+Note: The plugin automatically preserves and restores IME state when entering/leaving modes. This core functionality is not configurable.
 ```
 
 ## Debugging
