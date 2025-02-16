@@ -53,14 +53,14 @@ require('winimectl').setup({
     enable = true,    -- Enable/disable IME control for insert mode
     on_leave = {
       ime_off = true, -- Turn IME off when leaving insert mode
-      set_mode = 0,   -- Set IME mode when leaving (0 = English, 1025 = Japanese)
+      set_mode = 0,   -- Set IME mode when leaving (0 = English in almost all IMEs)
     }
   },
   cmdline = {
     enable = true,    -- Enable/disable IME control for command-line mode
     on_leave = {
       ime_off = true, -- Turn IME off when leaving command-line mode
-      set_mode = 0,   -- Set IME mode when leaving
+      set_mode = 0,   -- Set IME mode when leaving (0 = English in almost all IMEs
     }
   }
 })
@@ -69,18 +69,19 @@ require('winimectl').setup({
 All options have sensible defaults, so you only need to configure what you want to change.
 
 Example: Keep IME on in command-line mode
+
 ```lua
 require('winimectl').setup({
   cmdline = {
     on_leave = {
       ime_off = false,  -- Don't turn IME off
-      set_mode = 1025   -- Keep Japanese mode
     }
   }
 })
 ```
 
 Example: Disable IME control for insert mode
+
 ```lua
 require('winimectl').setup({
   insert = {
@@ -90,7 +91,6 @@ require('winimectl').setup({
 ```
 
 Note: The plugin automatically preserves and restores IME state when entering/leaving modes. This core functionality is not configurable.
-```
 
 ## Debugging
 
