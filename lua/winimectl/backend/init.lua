@@ -9,8 +9,9 @@ local backend = nil
 local initialized = false
 
 --- Initialize the backend based on current platform
+--- @param opts table|nil Configuration options to pass to backend
 --- @return boolean success Whether initialization succeeded
-function M.init()
+function M.init(opts)
   if initialized then
     return backend ~= nil
   end
@@ -24,7 +25,7 @@ function M.init()
       backend = ffi_backend
       initialized = true
       if backend.init then
-        return backend.init()
+        return backend.init(opts)
       end
       return true
     else
@@ -38,7 +39,7 @@ function M.init()
       backend = wsl_backend
       initialized = true
       if backend.init then
-        return backend.init()
+        return backend.init(opts)
       end
       return true
     else

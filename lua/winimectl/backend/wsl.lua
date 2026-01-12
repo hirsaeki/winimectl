@@ -5,6 +5,7 @@ local M = {}
 -- Internal state
 local initialized = false
 local exe_path = nil
+local config_exe_path = nil  -- Path from user config
 
 --- Convert Windows path to WSL path
 --- D:\path\to\file -> /mnt/d/path/to/file
@@ -21,27 +22,31 @@ local function to_wsl_path(win_path)
 end
 
 --- Resolve the path to ImeControl.exe
+--- Searches in order: 1. PATH, 2. user config, 3. returns nil
 ---@return string|nil Path to ImeControl.exe, or nil if not found
 local function resolve_exe_path()
-  -- Get the path to the plugin directory
-  local runtime_files = vim.api.nvim_get_runtime_file("lua/winimectl.lua", false)
-  if not runtime_files or #runtime_files == 0 then
-    return nil
+  -- 1. First, try to find ImeControl.exe in PATH
+  local path_exe = vim.fn.exepath("ImeControl.exe")
+  if path_exe and path_exe ~= "" then
+    -- exepath returns WSL-compatible path
+    return path_exe
   end
 
-  -- Get parent directory of lua/winimectl.lua (the plugin root)
-  local plugin_lua_path = runtime_files[1]
-  -- Go up from lua/winimectl.lua to plugin root
-  local plugin_root = vim.fn.fnamemodify(plugin_lua_path, ":h:h")
-  local win_exe_path = plugin_root .. "/wsl/ImeControl.exe"
-
-  -- Check if the file exists (using Windows path for existence check)
-  if vim.fn.filereadable(win_exe_path) ~= 1 then
-    return nil
+  -- 2. If not in PATH, use the config-provided path
+  if config_exe_path and config_exe_path ~= "" then
+    -- Check if it's a Windows path (contains backslash or drive letter)
+    local resolved_path = config_exe_path
+    if config_exe_path:match("^%a:\\") or config_exe_path:match("\\") then
+      resolved_path = to_wsl_path(config_exe_path)
+    end
+    -- Verify the file exists
+    if vim.fn.filereadable(resolved_path) == 1 or vim.fn.executable(resolved_path) == 1 then
+      return resolved_path
+    end
   end
 
-  -- Convert to WSL path for execution
-  return to_wsl_path(win_exe_path)
+  -- 3. Not found
+  return nil
 end
 
 --- Execute ImeControl.exe with given arguments
@@ -64,18 +69,35 @@ end
 
 --- Initialize the WSL backend
 --- Checks for ImeControl.exe existence and sets up internal state
+---@param opts table|nil Options table with optional exe_path field
 ---@return boolean True if initialization succeeded
-function M.init()
+function M.init(opts)
   if initialized then
     return true
   end
 
+  -- Store config exe_path if provided
+  if opts and opts.exe_path then
+    config_exe_path = opts.exe_path
+  end
+
   exe_path = resolve_exe_path()
   if not exe_path then
-    vim.notify(
-      "[winimectl] ImeControl.exe not found. Please compile wsl/ImeControl.cs",
-      vim.log.levels.ERROR
-    )
+    local error_msg = [[
+[winimectl] ImeControl.exe not found.
+
+Setup instructions:
+1. Copy ImeControl.exe to a directory in your Windows PATH
+   (e.g., C:\Users\<username>\bin\)
+2. Or specify the path in setup:
+   require('winimectl').setup({
+     exe_path = '/mnt/c/path/to/ImeControl.exe'
+   })
+
+To build ImeControl.exe:
+  cd <plugin_dir>/wsl
+  csc.exe /out:ImeControl.exe ImeControl.cs]]
+    vim.notify(error_msg, vim.log.levels.ERROR)
     return false
   end
 

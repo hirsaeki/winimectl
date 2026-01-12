@@ -98,34 +98,52 @@ This plugin also works in WSL (Windows Subsystem for Linux) environments. The pl
 
 ### How It Works
 
-Since LuaJIT FFI cannot directly call Windows APIs from WSL, the plugin uses a helper executable (`ImeControl.exe`) to control the Windows IME. This executable is included with the plugin in the `wsl/` directory.
+Since LuaJIT FFI cannot directly call Windows APIs from WSL, the plugin uses a helper executable (`ImeControl.exe`) to control the Windows IME.
+
+### Setup
+
+**Option 1: Add to Windows PATH (Recommended)**
+
+1. Build `ImeControl.exe`:
+   ```cmd
+   cd <plugin_dir>\wsl
+   csc.exe /out:ImeControl.exe ImeControl.cs
+   ```
+
+2. Copy `ImeControl.exe` to a directory in your Windows PATH (e.g., `C:\Users\<username>\bin\`)
+
+3. Configure your plugin:
+   ```lua
+   require("winimectl").setup()
+   ```
+
+**Option 2: Specify path in config**
+
+1. Build `ImeControl.exe` as above
+
+2. Configure with explicit path:
+   ```lua
+   require("winimectl").setup({
+     exe_path = "/mnt/c/path/to/ImeControl.exe"
+   })
+   ```
 
 ### Requirements
 
 - WSL2 environment
 - Windows IME enabled on the host system
-- `ImeControl.exe` compiled and placed in the `wsl/` directory
-
-### Building ImeControl.exe
-
-If `ImeControl.exe` is not included or you need to rebuild it:
-
-```bash
-# From WSL or Windows, in the plugin directory
-cd wsl
-csc ImeControl.cs
-```
+- WSLInterop enabled (default in WSL2)
 
 ### Troubleshooting
 
 **ImeControl.exe not found:**
-- Ensure `ImeControl.exe` exists in the `wsl/` directory of the plugin
-- If missing, compile it from `wsl/ImeControl.cs` using `csc ImeControl.cs`
+- Ensure `ImeControl.exe` is in your Windows PATH, or
+- Specify the path explicitly via `exe_path` option
 
 **IME control not working:**
 - Verify that Windows IME is enabled and working on the host
 - Make sure the terminal window has focus when testing
-- Check that WSL can execute Windows executables (WSLInterop must be enabled)
+- Check that WSL can execute Windows executables (`wsl.exe` should work)
 
 ## Debugging
 

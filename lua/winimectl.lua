@@ -2,6 +2,7 @@ local M = {}
 
 -- デフォルト設定
 local default_config = {
+  exe_path = nil, -- Path to ImeControl.exe (for WSL)
   insert = {
     enable = true,    -- 有効にするかどうか。falseにするとInsertLeaveのハンドラが登録されない
     on_leave = {
@@ -24,7 +25,7 @@ function M.setup(opts)
 
   -- バックエンド抽象化層の初期化
   local backend = require("winimectl.backend")
-  if not backend.init() then
+  if not backend.init({ exe_path = config.exe_path }) then
     vim.notify("[winimectl] Backend initialization failed", vim.log.levels.ERROR)
     return
   end
