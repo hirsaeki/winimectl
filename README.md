@@ -14,7 +14,7 @@ A Neovim plugin for controlling Windows IME state using LuaJIT FFI.
 ## Requirements
 
 - Neovim
-- Windows OS
+- Windows OS or WSL2
 
 ## Installation
 
@@ -91,6 +91,41 @@ require('winimectl').setup({
 ```
 
 Note: The plugin automatically preserves and restores IME state when entering/leaving modes. This core functionality is not configurable.
+
+## WSL Support
+
+This plugin also works in WSL (Windows Subsystem for Linux) environments. The platform is automatically detected at startup.
+
+### How It Works
+
+Since LuaJIT FFI cannot directly call Windows APIs from WSL, the plugin uses a helper executable (`ImeControl.exe`) to control the Windows IME. This executable is included with the plugin in the `wsl/` directory.
+
+### Requirements
+
+- WSL2 environment
+- Windows IME enabled on the host system
+- `ImeControl.exe` compiled and placed in the `wsl/` directory
+
+### Building ImeControl.exe
+
+If `ImeControl.exe` is not included or you need to rebuild it:
+
+```bash
+# From WSL or Windows, in the plugin directory
+cd wsl
+csc ImeControl.cs
+```
+
+### Troubleshooting
+
+**ImeControl.exe not found:**
+- Ensure `ImeControl.exe` exists in the `wsl/` directory of the plugin
+- If missing, compile it from `wsl/ImeControl.cs` using `csc ImeControl.cs`
+
+**IME control not working:**
+- Verify that Windows IME is enabled and working on the host
+- Make sure the terminal window has focus when testing
+- Check that WSL can execute Windows executables (WSLInterop must be enabled)
 
 ## Debugging
 
